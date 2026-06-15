@@ -1,0 +1,430 @@
+# DEV6 Report 개발자 인수인계 문서
+
+개발 6팀 주간·월간 보고 시스템(**DEV6_REPORT**, 앱명 **개발 6팀 Report**)을 인수하는 개발자를 위한 문서입니다.
+
+### GitLab 저장소
+
+| 항목 | URL |
+|------|-----|
+| GitLab (HTTP) | http://100.100.103.5/BT-DASH/DEV6-REPORT.git *(저장소명은 조직 정책에 맞게 확인)* |
+
+```bash
+git clone http://100.100.103.5/BT-DASH/DEV6-REPORT.git
+cd DEV6-REPORT
+```
+
+---
+
+## 1. 시스템 개요
+
+### 1.1 목적
+
+기존 Google Sheets / 엑셀(`기술본부_개발6팀_주간업무_2026`, `기술본부_개발6팀_월간보고_2026`) 양식을 웹으로 대체합니다.
+
+- **팀원**: 주간보고(개발6팀 시트 + JIRA 진행상황), 월간보고(솔루션별 실적·일별 공수)
+- **팀장**: 팀 취합, 작성명부(제출 현황), 통계
+- **관리**: 팀원·프로젝트 코드 마스터 관리
+
+매주 시트를 복사·리셋할 필요 없이 **ISO 연도+주차** 또는 **연도+월**로 데이터가 자동 구분됩니다.
+
+### 1.2 기술 스택
+
+| 구분 | 기술 | 비고 |
+|------|------|------|
+| 프론트 | React 19 (CRA) + Chakra UI v3 + React Query | `src/` |
+| 백엔드 | Spring Boot 3.2.5, Java 17, JPA, Flyway | `backend/` |
+| DB | MySQL 8.x (`reportDb`) | BT Dashboard `argo_db_mysql8`과 동일 서버 |
+| 외부 연동 | JIRA REST API | 백엔드 프록시 (`/api/jira/*`) |
+| 배포 | 단일 JAR (`dev6-report-1.0.0.jar`) | 프론트 빌드 결과 포함 |
+| 서버 앱 홈 | `/bt/dev6Report` | DEV6 Portal(`/bt/dev6Portal`)과 동일 패턴 |
+
+### 1.3 관련 시스템
+
+| 시스템 | 관계 |
+|--------|------|
+| BT Jira Dashboard | 동일 JIRA·DB 서버, 개발6팀 이슈 JQL 참고 |
+| DEV6 Portal | 단일 JAR + `dev6-*.sh` 배포 방식 동일 |
+| ARGO `TB_CM_HOLIDAY` | 휴일 데이터 → `calendar_holiday` 테이블 동기화 |
+
+---
+
+## 2. 프로젝트 구조
+
+```
+DEV6_REPORT/
+├── src/                              # React 앱
+│   ├── pages/Dashboard.js            # 탭 라우팅(상태 기반)
+│   ├── components/
+│   │   ├── WeeklyReport/             # 내 주간보고, 팀 취합, 개발6팀 시트
+│   │   ├── MonthlyReport/            # 월간 보고 (솔루션 탭, 일별 공수)
+│   │   ├── Statistics/               # 통계, 작성명부
+│   │   ├── Settings/                 # 팀원 관리 + 프로젝트 코드
+│   │   ├── Member/, Project/, Jira/
+│   │   └── Layout/                   # Sidebar, Header, AppShell
+│   ├── services/                     # API 클라이언트
+│   └── setupProxy.js                 # 개발 시 /api → :8993 프록시
+├── public/                           # favicon, index.html
+├── build/                            # npm run build 산출물 (JAR 패키징용)
+├── backend/
+│   └── src/main/java/com/bridgetec/dev6report/
+│       ├── web/                      # REST Controller
+│       ├── service/                  # 비즈니스 로직
+│       ├── repository/               # JPA
+│       ├── entity/, dto/
+│       └── config/WebConfig.java     # CORS, / → index.html
+│   └── src/main/resources/
+│       ├── application.yml
+│       └── db/migration/             # Flyway V1~V7
+├── scripts/
+│   ├── build.ps1                     # Windows: 프론트+JAR 빌드
+│   ├── run-jar.ps1                   # 로컬 JAR 실행
+│   ├── deploy.ps1                    # SSH 배포 (선택)
+│   ├── dev6-report.sh                # Linux 서버 기동/중지
+│   ├── import-code-management.js     # 프로젝트 코드 INSERT SQL 생성
+│   ├── import-calendar-holiday.js    # 휴일 INSERT SQL 생성
+│   └── sql/                          # 수동 실행용 SQL
+├── deploy/                           # install.sh, update.sh, systemd
+├── docs/
+│   └── HANDOVER.md                   # 본 문서
+├── .env.example
+├── .deploy.env.example               # deploy.ps1 SSH 설정
+├── run-backend.ps1                   # 로컬 개발 백엔드 실행
+└── README.md
+```
+
+### 서버 디렉터리 (`/bt/dev6Report`)
+
+```
+/bt/dev6Report/
+├── dev6-report-1.0.0.jar
+├── .env                              # 필수 (example 복사 후 사용)
+├── dev6-report.pid                   # 실행 시 생성
+├── dev6-report.log                   # 실행 시 생성
+└── scripts/
+    └── dev6-report.sh
+```
+
+---
+
+## 3. 화면·메뉴 구성
+
+| 메뉴 (Sidebar) | 대상 | 구글시트/엑셀 대응 |
+|----------------|------|-------------------|
+| **내 주간보고** | 팀원 | (필수-팀원) 개발6팀 + JIRA |
+| **월간 보고** | 팀원 | 월간보고 솔루션 탭 (SWAT/ARGO/RSM/오실론), 일별 공수 ○0.5 / ●1.0 |
+| **팀 취합** | 팀장 | (필수) 개발6팀 — 주차별 전체 조회 |
+| **개발6팀 시트** | 팀원 | 상세 시트 UI (프로젝트별 전주/금주/차주) |
+| **통계** | 팀장 | 작성명부, 제출률, 프로젝트 코드 통계 |
+| **전체 보고** | 관리 | 주간보고 상세 조회·수정 |
+| **설정** | 관리 | 팀원 관리 \| 프로젝트 코드 탭 |
+
+### 파트 구분
+
+- **1파트**: SWAT, IPRON CTI
+- **2파트**: ARGO, RSM
+
+---
+
+## 4. 데이터베이스
+
+### 4.1 접속 정보
+
+애플리케이션은 **루트 `.env`** (서버: `/bt/dev6Report/.env`)의 값으로 DB에 접속합니다.
+
+| 환경 변수 | 설명 | 기본값 |
+|-----------|------|--------|
+| `MYSQL_HOST` | DB 호스트 | `100.100.107.115` |
+| `MYSQL_PORT` | 포트 | `3318` |
+| `MYSQL_DATABASE` | 스키마명 | `reportDb` |
+| `MYSQL_USERNAME` | 계정 | `BTREPORT` |
+| `MYSQL_PASSWORD` | 비밀번호 | `BTREPORT` |
+
+> **중요:** 서버에서 앱을 띄울 때도 DB에 **네트워크로 접속 가능**해야 합니다.  
+> 로컬 PC에서만 되고 서버에서 안 되면 Flyway/API 오류로 기동이 실패하거나 화면이 멈춥니다.
+
+### 4.2 Flyway 마이그레이션
+
+| 버전 | 파일 | 내용 |
+|------|------|------|
+| V1 | `V1__init.sql` | member, weekly_report, monthly_report |
+| V2 | `V2__project_weekly_entries.sql` | project, weekly_report_entry |
+| V3 | `V3__sheet_workflow.sql` | 제출 워크플로, JIRA 필드, 멤버 시드 |
+| V4 | `V4__project_code_management_schema.sql` | project 코드관리 스키마 |
+| V5 | `V5__member_assigned_product_lines.sql` | 멤버별 담당 솔루션 |
+| V6 | `V6__monthly_work_items.sql` | monthly_work_item, monthly_work_daily |
+| V7 | `V7__calendar_holiday.sql` | calendar_holiday (ARGO 휴일) |
+
+백엔드 **최초 기동** 시 Flyway가 V1~V7을 순서대로 적용합니다.
+
+### 4.3 Flyway 외 수동 데이터
+
+| 데이터 | 방법 | 파일 |
+|--------|------|------|
+| 프로젝트 코드 (~217건) | Node 스크립트로 SQL 생성 후 MySQL 실행 | `scripts/import-code-management.js` → `scripts/sql/code-management-insert.sql` |
+| 휴일 달력 (~8980건) | ARGO Oracle export → Node 변환 → MySQL 실행 | `scripts/import-calendar-holiday.js` → `scripts/sql/calendar-holiday-insert.sql` |
+
+```powershell
+# 프로젝트 코드 SQL 생성
+node scripts/import-code-management.js
+# mysql -u BTREPORT -p reportDb < scripts/sql/code-management-insert.sql
+
+# 휴일 SQL 생성 (Desktop\TB_CM_HOLIDAY.sql 기본 경로)
+node scripts/import-calendar-holiday.js
+# mysql -u BTREPORT -p reportDb < scripts/sql/calendar-holiday-insert.sql
+```
+
+### 4.4 Flyway checksum 오류
+
+마이그레이션 파일을 수정한 DB에서 checksum 불일치 시:
+
+```powershell
+.\scripts\flyway-repair.ps1
+```
+
+또는 `scripts/sql/flyway-repair-v4-checksum.sql` 등을 MySQL에서 직접 실행.
+
+---
+
+## 5. 환경 변수 (`.env`)
+
+Git에 포함되지 않습니다. `.env.example`을 복사해 `.env`로 사용합니다.
+
+```properties
+# 서버 JAR 실행
+PORT=8993
+HOST=0.0.0.0
+
+# MySQL
+MYSQL_HOST=100.100.107.115
+MYSQL_PORT=3318
+MYSQL_DATABASE=reportDb
+MYSQL_USERNAME=BTREPORT
+MYSQL_PASSWORD=BTREPORT
+
+# JIRA (백엔드 프록시)
+JIRA_BASE_URL=http://qa.bridgetec.co.kr/jira
+JIRA_USERNAME=woos798
+JIRA_PASSWORD=4072
+
+# 휴일 테넌트 (선택)
+# CALENDAR_TENANT_ID=ARGO1
+```
+
+| 변수 | 용도 |
+|------|------|
+| `REACT_APP_API_PROXY_TARGET` | **개발 시만** (`npm start`) — `/api` 프록시 대상 |
+| `REACT_APP_API_BASE_URL` | **빌드 시만** — 비우면 상대 경로 `/api` (단일 JAR 권장) |
+| `REACT_APP_JIRA_BASE_URL` | **빌드 시만** — JIRA 이슈 링크 URL |
+
+> 서버 배포: `.env.example` 내용을 `/bt/dev6Report/.env`로 복사하면 대부분 그대로 동작합니다.  
+> `dev6-report.sh`는 `.env` 파일 존재를 **필수**로 검사합니다.
+
+---
+
+## 6. 백엔드 코드 위치
+
+| 역할 | 경로 |
+|------|------|
+| 주간보고 API | `web/WeeklyReportController.java`, `service/WeeklyReportService.java` |
+| 월간보고 API | `web/MonthlyReportController.java`, `service/MonthlyReportService.java` |
+| 통계·작성명부 | `web/StatisticsController.java`, `service/StatisticsService.java` |
+| 멤버 API | `web/MemberController.java`, `service/MemberService.java` |
+| 프로젝트 코드 | `web/ProjectController.java`, `service/ProjectService.java` |
+| JIRA 프록시 | `web/JiraSearchController.java`, `service/JiraProxyService.java` |
+| 휴일 달력 | `web/CalendarController.java`, `service/CalendarService.java` |
+| 예외 처리 | `web/ApiExceptionHandler.java` |
+| 설정 | `src/main/resources/application.yml` |
+| SPA 루트 | `config/WebConfig.java` (`/` → `index.html`) |
+
+### API 요약
+
+| Method | Path | 설명 |
+|--------|------|------|
+| GET | `/api/members` | 멤버 목록 |
+| POST/PUT/DELETE | `/api/members` | 멤버 CRUD, 순서 변경 |
+| GET/POST/PUT | `/api/weekly-reports` | 주간 보고 |
+| POST | `/api/weekly-reports/{id}/submit` | 제출 |
+| POST | `/api/weekly-reports/{id}/withdraw` | 제출 취소 |
+| GET/POST/PUT | `/api/monthly-reports` | 월간 보고 (workItems 포함) |
+| POST | `/api/monthly-reports/{id}/submit` | 월간 제출 |
+| GET | `/api/statistics/overview` | 통계 대시보드 |
+| GET | `/api/statistics/submission-roster` | 작성명부 |
+| GET | `/api/statistics/project-codes` | 프로젝트 코드 통계 |
+| GET | `/api/projects` | 프로젝트 코드 목록 |
+| POST | `/api/jira/search` | JIRA 검색 프록시 |
+| GET | `/api/jira/dev6-team/issues` | 개발6팀 이슈 |
+| GET | `/api/jira/member/{id}/issues` | 멤버별 이슈 |
+| GET | `/api/calendar/days` | 월간보고용 휴일·요일 |
+
+---
+
+## 7. 프론트엔드 코드 위치
+
+| 역할 | 경로 |
+|------|------|
+| 메인 탭 전환 | `pages/Dashboard.js` |
+| 네비게이션 | `components/Layout/Sidebar.js` |
+| 내 주간보고 | `components/WeeklyReport/MyWeeklyReportPanel.js` |
+| 월간 보고 | `components/MonthlyReport/MonthlyReportPanel.js` |
+| 작성명부 | `components/Statistics/SubmissionRosterPanel.js` |
+| 설정(탭) | `components/Settings/SettingsPanel.js` |
+| API 유틸 | `services/apiBase.js` |
+| 개발 프록시 | `src/setupProxy.js` |
+
+---
+
+## 8. 로컬 개발
+
+**Java 17** 필요. Maven 전역 설치 불필요 (`backend/mvnw.cmd` 사용).
+
+```powershell
+# 최초
+npm install
+copy .env.example .env
+
+# 터미널 1 – 백엔드 :8993
+.\run-backend.ps1
+
+# 터미널 2 – 프론트 :3000
+npm start
+```
+
+브라우저: `http://localhost:3000`  
+개발 시 `setupProxy.js`가 `/api`를 `http://localhost:8993`으로 프록시합니다.
+
+### 주의 (PowerShell 환경변수)
+
+셸에 `MYSQL_HOST=localhost` 등이 남아 있으면 `BadAuthenticationPlugin` 오류가 납니다.  
+**`.\run-backend.ps1` 사용**을 권장합니다 (올바른 DB 값으로 덮어씀).
+
+---
+
+## 9. 로컬 JAR 실행 (빌드 결과 확인)
+
+```powershell
+.\scripts\build.ps1
+.\scripts\run-jar.ps1
+```
+
+브라우저: `http://localhost:8993` (`.env`의 `PORT`)
+
+---
+
+## 10. 빌드 (프론트 포함 JAR)
+
+**반드시 순서:** `npm run build` → `mvn package -Pbundle-frontend`
+
+### Windows (한 번에)
+
+```powershell
+cd "C:\Users\Hwang Hee Seoung\git\DEV6_REPORT"
+.\scripts\build.ps1
+```
+
+### 수동
+
+```powershell
+npm install
+npm run build
+
+cd backend
+.\mvnw.cmd clean package -Pbundle-frontend -DskipTests
+```
+
+**결과 JAR:** `backend\target\dev6-report-1.0.0.jar`  
+(`*-original.jar`는 사용하지 않음)
+
+> `-Pbundle-frontend` 없이 빌드하면 API만 있고 **화면(React)이 JAR에 없습니다.**
+
+### 서버 배포 파일
+
+| 파일 | 서버 경로 |
+|------|-----------|
+| JAR | `/bt/dev6Report/dev6-report-1.0.0.jar` |
+| `.env` | `/bt/dev6Report/.env` |
+| `dev6-report.sh` | `/bt/dev6Report/scripts/dev6-report.sh` |
+
+### Windows → SSH 배포 (선택)
+
+`.deploy.env.example` → `.deploy.env` 작성 후:
+
+```powershell
+.\scripts\deploy.ps1 -Init -Build   # 최초
+.\scripts\deploy.ps1 -Build         # 갱신
+```
+
+---
+
+## 11. 서버 기동 / 중지
+
+Windows에서 업로드한 스크립트는 **CRLF 제거** 후 실행 권한을 줍니다.
+
+```bash
+sed -i 's/\r$//' /bt/dev6Report/scripts/dev6-report.sh
+chmod +x /bt/dev6Report/scripts/dev6-report.sh
+
+cp /bt/dev6Report/.env.example /bt/dev6Report/.env   # 최초 1회
+```
+
+```bash
+/bt/dev6Report/scripts/dev6-report.sh start
+/bt/dev6Report/scripts/dev6-report.sh stop
+/bt/dev6Report/scripts/dev6-report.sh restart
+/bt/dev6Report/scripts/dev6-report.sh status
+/bt/dev6Report/scripts/dev6-report.sh logs
+```
+
+`scripts` 폴더 안에서:
+
+```bash
+cd /bt/dev6Report/scripts
+./dev6-report.sh start
+```
+
+---
+
+## 12. 장애 대응
+
+| 증상 | 확인 |
+|------|------|
+| 기동 실패 «.env 파일이 없습니다» | `/bt/dev6Report/.env` 생성 (example 복사) |
+| DB 연결 실패 | 서버에서 `100.100.107.115:3318` 접속 가능 여부, `.env` 계정 |
+| 화면 없음 (404) | JAR 빌드 시 `-Pbundle-frontend` 사용 여부 |
+| JIRA 목록 안 나옴 | `.env`의 `JIRA_*`, JIRA 서버 접근, 멤버 `jira_username` 매핑 |
+| 월간보고 휴일/주말 표시 이상 | `calendar_holiday` 데이터 import 여부, `CALENDAR_TENANT_ID=ARGO1` |
+| Flyway 오류 | `dev6-report.log` 확인, 필요 시 `flyway-repair` |
+| `dev6-report.sh: 명령을 찾을 수 없습니다` | `./dev6-report.sh` 또는 전체 경로 사용 |
+
+로그 확인:
+
+```bash
+tail -50 /bt/dev6Report/dev6-report.log
+/bt/dev6Report/scripts/dev6-report.sh logs
+```
+
+---
+
+## 13. 향후 확장 (미구현)
+
+- 부팀장 이메일 자동 발송
+- 로그인/권한 (팀원 본인 보고만 수정)
+- Google Drive 연동보내기
+- 팀 전체 월간 시트 / 경쟁력강화 탭
+- ARGO 휴일 실시간 연동 (현재는 SQL 일괄 import)
+
+---
+
+## 14. DEV6 Portal과 비교
+
+| 항목 | DEV6 Portal | DEV6 Report |
+|------|-------------|---------------|
+| JAR | `dev6-portal-1.0.0.jar` | `dev6-report-1.0.0.jar` |
+| 앱 홈 | `/bt/dev6Portal` | `/bt/dev6Report` |
+| 포트 | 3000 | 8993 |
+| DB | `portaldb` | `reportDb` |
+| 기동 스크립트 | `dev6-portal.sh` | `dev6-report.sh` |
+| 빌드 | `build.ps1` + `-Pbundle-frontend` | 동일 |
+
+---
+
+*문서 작성 기준: DEV6_REPORT 1.0.0 / Flyway V7*

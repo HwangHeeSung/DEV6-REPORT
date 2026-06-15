@@ -1,0 +1,42 @@
+server:
+  port: ${PORT:8993}
+  address: ${HOST:0.0.0.0}
+
+spring:
+  application:
+    name: dev6-report
+  config:
+    import: optional:file:.env[.properties],optional:file:../.env[.properties]
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:100.100.107.115}:${MYSQL_PORT:3318}/${MYSQL_DATABASE:reportDb}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&useSSL=false
+    username: ${MYSQL_USERNAME:BTREPORT}
+    password: ${MYSQL_PASSWORD:BTREPORT}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+# Jira 연동: BT Dashboard(bt-jira-dashboard)와 동일한 로컬 기본값.
+# 운영/공유 저장소에서는 JIRA_USERNAME, JIRA_PASSWORD 환경변수로 덮어쓰기 권장.
+# ARGO TB_CM_HOLIDAY → calendar_holiday 테이블 동기화 후 사용
+calendar:
+  default-tenant-id: ${CALENDAR_TENANT_ID:ARGO1}
+
+jira:
+  base-url: ${JIRA_BASE_URL:http://qa.bridgetec.co.kr/jira}
+  username: ${JIRA_USERNAME:woos798}
+  password: ${JIRA_PASSWORD:4072}
+  # BT Dashboard 개발6팀 탭 inProgress JQL (ORDER BY 제외)
+  dev6-team-issues-jql: ${JIRA_DEV6_TEAM_ISSUES_JQL:project = SS AND (처리부서 = 개발6팀 OR assignee in membersOf(개발6팀)) AND status != Closed AND duedate > 2026-01-01}
+
+logging:
+  level:
+    com.bridgetec.dev6report: INFO

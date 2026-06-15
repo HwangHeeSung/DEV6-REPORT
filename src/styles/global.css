@@ -1,0 +1,369 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+
+:root {
+  --bg-base: #0c0e14;
+  --bg-elevated: #13161f;
+  --bg-mesh-1: rgba(99, 102, 241, 0.06);
+  --bg-mesh-2: rgba(14, 165, 233, 0.04);
+  --bg-mesh-3: rgba(168, 85, 247, 0.03);
+  --surface: #161922;
+  --surface-hover: #1c2030;
+  --surface-strong: #1c2030;
+  --border: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --text: #f8fafc;
+  --text-muted: #cbd5e1;
+  --text-faint: #94a3b8;
+  --accent: #a5b4fc;
+  --accent-strong: #818cf8;
+  --success: #4ade80;
+  --warning: #fcd34d;
+  --danger: #fca5a5;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-base);
+  color: var(--text);
+}
+
+::selection {
+  background: rgba(129, 140, 248, 0.35);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.app-mesh-bg {
+  background-color: var(--bg-base);
+  background-image:
+    radial-gradient(ellipse 70% 45% at 15% -5%, var(--bg-mesh-1), transparent),
+    radial-gradient(ellipse 50% 35% at 95% 5%, var(--bg-mesh-2), transparent);
+}
+
+.glass-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.glass-panel-strong {
+  background: var(--surface-strong);
+  border: 1px solid var(--border-strong);
+}
+
+.app-select {
+  appearance: none;
+  background: var(--surface-strong);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 36px 10px 14px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.app-select:hover {
+  border-color: var(--border-strong);
+  background-color: var(--surface-hover);
+}
+
+.app-select:focus {
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+
+.app-input {
+  background: var(--surface-strong) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+  color: var(--text) !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+
+.app-input:focus {
+  border-color: var(--accent-strong) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+}
+
+.app-input::placeholder {
+  color: var(--text-faint) !important;
+}
+
+.app-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  letter-spacing: 0.01em;
+}
+
+.app-body-text {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.app-btn-secondary {
+  background: var(--surface-strong) !important;
+  border: 1px solid var(--border-strong) !important;
+  color: var(--text) !important;
+  font-weight: 600 !important;
+}
+
+.app-btn-secondary:hover:not(:disabled) {
+  background: var(--surface-hover) !important;
+  border-color: var(--accent-strong) !important;
+  color: #fff !important;
+}
+
+.app-btn-draft {
+  background: rgba(252, 211, 77, 0.14) !important;
+  border: 1px solid rgba(252, 211, 77, 0.5) !important;
+  color: #fde68a !important;
+  font-weight: 600 !important;
+}
+
+.app-btn-draft:hover:not(:disabled) {
+  background: rgba(252, 211, 77, 0.22) !important;
+  border-color: var(--warning) !important;
+  color: #fff !important;
+}
+
+.monthly-work-scroll {
+  max-width: 100%;
+}
+
+.monthly-work-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  table-layout: auto;
+}
+
+.monthly-work-table th,
+.monthly-work-table td {
+  border: 1px solid var(--border);
+  padding: 8px;
+  vertical-align: middle;
+  background: var(--surface);
+}
+
+.monthly-work-table th {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 1.35;
+}
+
+.monthly-work-table .col-client {
+  min-width: 130px;
+  width: 130px;
+}
+
+.monthly-work-table .col-work-type {
+  min-width: 112px;
+  width: 112px;
+}
+
+.monthly-work-table .col-maint-type {
+  min-width: 112px;
+  width: 112px;
+}
+
+.monthly-work-table .col-date {
+  min-width: 148px;
+  width: 148px;
+}
+
+.monthly-work-table .col-status {
+  min-width: 100px;
+  width: 100px;
+}
+
+.monthly-work-table .col-desc {
+  min-width: 300px;
+  width: 300px;
+}
+
+.monthly-work-table .col-total {
+  min-width: 80px;
+  width: 80px;
+}
+
+.monthly-work-table .col-action {
+  min-width: 48px;
+  width: 48px;
+  text-align: center;
+}
+
+.monthly-work-table .week-header {
+  color: var(--accent);
+}
+
+.monthly-work-table .day-header {
+  width: 40px;
+  min-width: 40px;
+  font-size: 11px;
+  line-height: 1.25;
+  padding: 4px 2px;
+}
+
+.monthly-work-table .day-header .day-num {
+  display: block;
+  font-weight: 700;
+}
+
+.monthly-work-table .day-header .day-dow {
+  display: block;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-faint);
+}
+
+.monthly-work-table .day-header.is-weekend,
+.monthly-work-table .effort-td.is-weekend {
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.monthly-work-table .day-header.is-holiday,
+.monthly-work-table .effort-td.is-holiday {
+  background: rgba(248, 113, 113, 0.18);
+}
+
+.monthly-work-table .day-header.is-holiday .day-num {
+  color: #fca5a5;
+}
+
+.calendar-legend {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+}
+
+.calendar-legend.weekend {
+  background: rgba(148, 163, 184, 0.2);
+}
+
+.calendar-legend.holiday {
+  background: rgba(248, 113, 113, 0.22);
+  color: #fecaca;
+}
+
+.monthly-work-table .effort-td {
+  width: 40px;
+  min-width: 40px;
+  padding: 4px 2px;
+  text-align: center;
+}
+
+.monthly-work-table .total-cell {
+  text-align: center;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.monthly-work-table .empty-row {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 24px;
+}
+
+.monthly-work-table .table-input,
+.monthly-work-table .table-textarea,
+.monthly-work-table .table-select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.monthly-work-table .table-textarea {
+  min-height: 56px;
+  resize: vertical;
+}
+
+.monthly-work-table input[type="date"].table-input {
+  padding-left: 6px;
+  padding-right: 4px;
+}
+
+.monthly-effort-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0 auto;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-faint);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.monthly-effort-cell:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+}
+
+.monthly-effort-cell.has-effort {
+  color: #86efac;
+  font-weight: 700;
+}
+
+.monthly-effort-cell:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
