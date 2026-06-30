@@ -1,0 +1,12 @@
+node_modules
+build
+backend/target
+.git
+.idea
+.vscode
+*.md
+docs
+deploy
+scripts
+.env
+.deploy.env

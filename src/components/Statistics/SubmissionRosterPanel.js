@@ -52,6 +52,7 @@ function StatusBadge({ done, doneLabel, pendingLabel }) {
 function RosterTableHeader() {
   return (
     <Box
+      display={{ base: 'none', md: 'grid' }}
       {...ROSTER_GRID_PROPS}
       fontSize="sm"
       fontWeight="700"
@@ -72,34 +73,65 @@ function RosterTableHeader() {
 function RosterRow({ row }) {
   return (
     <Box
-      {...ROSTER_GRID_PROPS}
       py={3.5}
       borderBottom="1px solid"
       borderColor={tokens.border}
       _last={{ borderBottom: 'none' }}
     >
-      <Text fontSize="md" fontWeight="700" color={tokens.text} lineHeight="1.4">
-        {row.memberName}
-      </Text>
-      <Flex justify="center">
-        {row.requiresDev6Report ? (
-          <StatusBadge done={row.dev6Submitted} doneLabel="완료" pendingLabel="미제출" />
-        ) : (
-          <Text color={tokens.textFaint} fontSize="sm">-</Text>
-        )}
-      </Flex>
-      <Flex justify="center">
-        {row.requiresJiraReport ? (
-          <StatusBadge done={row.jiraCompleted} doneLabel="작성완료" pendingLabel="미작성" />
-        ) : (
-          <Text color={tokens.textFaint} fontSize="sm">-</Text>
-        )}
-      </Flex>
-      <Text color={tokens.textMuted} fontSize="sm" lineHeight="1.5">
-        {row.weeklyStatus === 'SUBMITTED'
-          ? `제출 ${row.submittedAt ? new Date(row.submittedAt).toLocaleDateString('ko-KR') : ''}`
-          : row.weeklyStatus === 'MISSING' ? '미작성' : row.weeklyStatus}
-      </Text>
+      <Box
+        display={{ base: 'none', md: 'grid' }}
+        {...ROSTER_GRID_PROPS}
+      >
+        <Text fontSize="md" fontWeight="700" color={tokens.text} lineHeight="1.4">
+          {row.memberName}
+        </Text>
+        <Flex justify="center">
+          {row.requiresDev6Report ? (
+            <StatusBadge done={row.dev6Submitted} doneLabel="완료" pendingLabel="미제출" />
+          ) : (
+            <Text color={tokens.textFaint} fontSize="sm">-</Text>
+          )}
+        </Flex>
+        <Flex justify="center">
+          {row.requiresJiraReport ? (
+            <StatusBadge done={row.jiraCompleted} doneLabel="작성완료" pendingLabel="미작성" />
+          ) : (
+            <Text color={tokens.textFaint} fontSize="sm">-</Text>
+          )}
+        </Flex>
+        <Text color={tokens.textMuted} fontSize="sm" lineHeight="1.5">
+          {row.weeklyStatus === 'SUBMITTED'
+            ? `제출 ${row.submittedAt ? new Date(row.submittedAt).toLocaleDateString('ko-KR') : ''}`
+            : row.weeklyStatus === 'MISSING' ? '미작성' : row.weeklyStatus}
+        </Text>
+      </Box>
+
+      <Box display={{ base: 'block', md: 'none' }}>
+        <Flex justify="space-between" align="flex-start" gap={2} mb={2}>
+          <Text fontSize="md" fontWeight="700" color={tokens.text} lineHeight="1.4">
+            {row.memberName}
+          </Text>
+          <Text color={tokens.textMuted} fontSize="xs" lineHeight="1.5" textAlign="right" flexShrink={0}>
+            {row.weeklyStatus === 'SUBMITTED'
+              ? `제출 ${row.submittedAt ? new Date(row.submittedAt).toLocaleDateString('ko-KR') : ''}`
+              : row.weeklyStatus === 'MISSING' ? '미작성' : row.weeklyStatus}
+          </Text>
+        </Flex>
+        <Flex gap={2} flexWrap="wrap">
+          {row.requiresDev6Report ? (
+            <Flex align="center" gap={1.5}>
+              <Text fontSize="xs" color={tokens.textFaint}>개발6팀</Text>
+              <StatusBadge done={row.dev6Submitted} doneLabel="완료" pendingLabel="미제출" />
+            </Flex>
+          ) : null}
+          {row.requiresJiraReport ? (
+            <Flex align="center" gap={1.5}>
+              <Text fontSize="xs" color={tokens.textFaint}>JIRA</Text>
+              <StatusBadge done={row.jiraCompleted} doneLabel="작성완료" pendingLabel="미작성" />
+            </Flex>
+          ) : null}
+        </Flex>
+      </Box>
     </Box>
   );
 }
@@ -110,7 +142,7 @@ function RosterPartSection({ title, subtitle, rows }) {
   return (
     <Card strong p={0} overflow="hidden" h="100%">
       <Flex
-        px={5}
+        px={{ base: 4, md: 5 }}
         py={4}
         borderBottom="1px solid"
         borderColor={tokens.borderStrong}
@@ -120,9 +152,9 @@ function RosterPartSection({ title, subtitle, rows }) {
         bg={tokens.surfaceStrong}
         flexWrap="wrap"
       >
-        <Box>
+        <Box minW={0}>
           <Flex align="center" gap={3} flexWrap="wrap" mb={1}>
-            <Text fontWeight="800" fontSize="xl" color={tokens.text} letterSpacing="-0.02em">
+            <Text fontWeight="800" fontSize={{ base: 'lg', md: 'xl' }} color={tokens.text} letterSpacing="-0.02em">
               {title}
             </Text>
             <Badge colorPalette="purple" borderRadius="full" px={3} py={1} fontSize="sm" fontWeight="700">
@@ -146,7 +178,7 @@ function RosterPartSection({ title, subtitle, rows }) {
           </Text>
         </Flex>
       </Flex>
-      <Box px={5} py={4}>
+      <Box px={{ base: 4, md: 5 }} py={4}>
         {rows.length === 0 ? (
           <Text fontSize="md" color={tokens.textFaint} py={10} textAlign="center">
             이번 주 작성 대상 없음
@@ -183,10 +215,10 @@ export default function SubmissionRosterPanel({ year, week }) {
 
   return (
     <Box mb={6} w="100%">
-      <Text fontWeight="800" fontSize="xl" color={tokens.text} mb={1} letterSpacing="-0.02em">
+      <Text fontWeight="800" fontSize={{ base: 'lg', md: 'xl' }} color={tokens.text} mb={1} letterSpacing="-0.02em">
         작성명부
       </Text>
-      <Text fontSize="md" color={tokens.textMuted} mb={5}>
+      <Text fontSize={{ base: 'sm', md: 'md' }} color={tokens.textMuted} mb={{ base: 4, md: 5 }}>
         {year}년 {week}주차 · 개발6팀 / JIRA 제출 현황
       </Text>
 

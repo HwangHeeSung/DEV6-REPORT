@@ -26,7 +26,7 @@ export default function Dashboard() {
       period={period}
       showPeriodBar={showPeriodBar}
       contentMaxW={wideLayout ? '100%' : '1440px'}
-      contentPx={wideLayout ? { base: 2, lg: 4 } : undefined}
+      contentPx={wideLayout ? { base: 2, sm: 3, lg: 4 } : undefined}
     >
       {activeTab === 'my-report' && <MyWeeklyReportPanel year={year} />}
       {activeTab === 'team-summary' && <TeamWeeklySummaryPanel year={year} />}

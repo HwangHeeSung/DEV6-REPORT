@@ -197,7 +197,7 @@ export default function Dev6TeamSheetTab({
               </Text>
             ))}
           </Box>
-          <Box overflowX="auto" maxH="calc(100vh - 340px)" overflowY="auto" w="100%">
+          <Box overflowX="auto" maxH={{ base: 'calc(100dvh - 420px)', md: 'calc(100vh - 340px)' }} overflowY="auto" w="100%" className="app-scroll-x">
             {rows.map((row) => (
               <SheetRow key={row.id} row={row} />
             ))}

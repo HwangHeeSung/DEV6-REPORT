@@ -22,15 +22,15 @@ export default function Sidebar({ activeTab, onTabChange }) {
       as="header"
       w="100%"
       bg="transparent"
-      px={{ base: 4, lg: 8 }}
-      py={3}
+      px={{ base: 3, sm: 4, lg: 8 }}
+      py={{ base: 2.5, md: 3 }}
     >
       <Flex
         align="center"
-        gap={{ base: 4, lg: 6 }}
+        gap={{ base: 3, lg: 6 }}
         flexWrap={{ base: 'wrap', xl: 'nowrap' }}
       >
-        <Flex align="center" gap={3} flexShrink={0}>
+        <Flex align="center" gap={2.5} flexShrink={0} minW={0}>
           <Box
             w="40px"
             h="40px"
@@ -47,8 +47,14 @@ export default function Sidebar({ activeTab, onTabChange }) {
               objectFit="cover"
             />
           </Box>
-          <Box display={{ base: 'none', sm: 'block' }}>
-            <Text fontWeight="800" fontSize="md" letterSpacing="-0.03em" lineHeight="1.2">
+          <Box display={{ base: 'none', sm: 'block' }} minW={0}>
+            <Text
+              fontWeight="800"
+              fontSize={{ base: 'sm', md: 'md' }}
+              letterSpacing="-0.03em"
+              lineHeight="1.2"
+              whiteSpace="nowrap"
+            >
               {APP_NAME}
             </Text>
           </Box>
@@ -58,10 +64,15 @@ export default function Sidebar({ activeTab, onTabChange }) {
           flex={1}
           gap={1}
           minW={0}
+          w={{ base: '100%', xl: 'auto' }}
           overflowX="auto"
           flexWrap={{ base: 'nowrap', xl: 'wrap' }}
           py={0.5}
+          mx={{ base: -1, sm: 0 }}
+          px={{ base: 1, sm: 0 }}
+          className="app-scroll-x"
           css={{
+            scrollSnapType: 'x proximity',
             '&::-webkit-scrollbar': { height: '4px' },
             '&::-webkit-scrollbar-thumb': { background: 'rgba(255,255,255,0.16)', borderRadius: '999px' },
           }}
@@ -79,9 +90,10 @@ export default function Sidebar({ activeTab, onTabChange }) {
                 alignItems="center"
                 gap={2}
                 flexShrink={0}
-                px={3}
-                py={2}
+                px={{ base: 2.5, md: 3 }}
+                py={{ base: 1.5, md: 2 }}
                 borderRadius="10px"
+                scrollSnapAlign="start"
                 cursor="pointer"
                 transition="all 0.15s ease"
                 bg={active ? 'rgba(99, 102, 241, 0.18)' : 'transparent'}
@@ -94,7 +106,7 @@ export default function Sidebar({ activeTab, onTabChange }) {
                 }}
               >
                 <Icon size={16} style={{ flexShrink: 0, opacity: active ? 1 : 0.85 }} />
-                <Text fontSize="sm" fontWeight={active ? '600' : '500'} whiteSpace="nowrap">
+                <Text fontSize={{ base: 'xs', sm: 'sm' }} fontWeight={active ? '600' : '500'} whiteSpace="nowrap">
                   {item.label}
                 </Text>
                 {item.hint && (

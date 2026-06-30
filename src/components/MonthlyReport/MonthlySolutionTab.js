@@ -83,8 +83,13 @@ export default function MonthlySolutionTab({
   return (
     <Box w="100%" maxW="100%">
       <Flex justify="space-between" align="center" mb={2} px={{ base: 3, lg: 4 }} gap={2} flexWrap="wrap">
-        <Flex gap={3} flexWrap="wrap" align="center" fontSize="sm" color={tokens.textMuted}>
-          <Text>○ 0.5 M/D · ● 1.0 M/D · 같은 날 합계 1.0 이하 · ○에서 더 올릴 수 없으면 클릭 시 취소</Text>
+        <Flex gap={2} flexWrap="wrap" align="center" fontSize="sm" color={tokens.textMuted} minW={0}>
+          <Text display={{ base: 'none', md: 'inline' }}>
+            ○ 0.5 M/D · ● 1.0 M/D · 같은 날 합계 1.0 이하 · ○에서 더 올릴 수 없으면 클릭 시 취소
+          </Text>
+          <Text display={{ base: 'inline', md: 'none' }} fontSize="xs">
+            ○ 0.5 · ● 1.0 · 일일 합계 1.0 이하
+          </Text>
           {hasCalendar && (
             <>
               <Text as="span" className="calendar-legend weekend">주말</Text>
@@ -106,7 +111,7 @@ export default function MonthlySolutionTab({
         borderTop="1px solid"
         borderBottom="1px solid"
         borderColor={tokens.border}
-        className="monthly-work-scroll"
+        className="monthly-work-scroll app-scroll-x"
       >
         <Box as="table" className="monthly-work-table">
           <thead>

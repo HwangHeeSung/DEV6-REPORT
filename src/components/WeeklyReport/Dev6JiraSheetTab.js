@@ -227,7 +227,7 @@ export default function Dev6JiraSheetTab({
               </Text>
             ))}
           </Box>
-          <Box overflowX="auto" maxH="calc(100vh - 380px)" overflowY="auto" w="100%">
+          <Box overflowX="auto" maxH={{ base: 'calc(100dvh - 460px)', md: 'calc(100vh - 380px)' }} overflowY="auto" w="100%" className="app-scroll-x">
             {rows.map((row) => (
               <JiraSheetRow key={row.id} row={row} />
             ))}

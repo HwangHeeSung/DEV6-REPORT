@@ -30,6 +30,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
@@ -41,6 +42,19 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: var(--bg-base);
   color: var(--text);
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+}
+
+#root {
+  overflow-x: clip;
+  min-height: 100vh;
+}
+
+.app-scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
 }
 
 ::selection {
@@ -366,4 +380,61 @@ body {
 .monthly-effort-cell:disabled {
   cursor: default;
   opacity: 0.85;
+}
+
+@media (max-width: 767px) {
+  body {
+    font-size: 14px;
+  }
+
+  .app-select {
+    font-size: 16px;
+    max-width: 100%;
+  }
+
+  .app-input {
+    font-size: 16px !important;
+  }
+
+  .monthly-work-table {
+    font-size: 12px;
+  }
+
+  .monthly-work-table th,
+  .monthly-work-table td {
+    padding: 6px;
+  }
+
+  .monthly-work-table .col-client {
+    min-width: 100px;
+    width: 100px;
+  }
+
+  .monthly-work-table .col-work-type,
+  .monthly-work-table .col-maint-type {
+    min-width: 92px;
+    width: 92px;
+  }
+
+  .monthly-work-table .col-date {
+    min-width: 128px;
+    width: 128px;
+  }
+
+  .monthly-work-table .col-desc {
+    min-width: 200px;
+    width: 200px;
+  }
+
+  .monthly-work-table .day-header,
+  .monthly-work-table .effort-td {
+    width: 34px;
+    min-width: 34px;
+  }
+
+  .monthly-effort-cell {
+    width: 26px;
+    height: 26px;
+    font-size: 13px;
+  }
 }

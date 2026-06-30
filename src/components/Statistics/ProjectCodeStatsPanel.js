@@ -103,7 +103,7 @@ function WorkTypeSection({ workType, rows }) {
           등록 {totalEntries}건
         </Text>
       </Flex>
-      <Box px={5} py={4} overflowX="auto">
+      <Box px={{ base: 4, md: 5 }} py={4} overflowX="auto" className="app-scroll-x">
         <Box minW="760px">
           <StatsTableHeader />
           {rows.map((row) => (

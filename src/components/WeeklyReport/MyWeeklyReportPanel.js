@@ -731,6 +731,7 @@ export default function MyWeeklyReportPanel({ year }) {
           <Flex
             px={{ base: 4, lg: 6 }}
             py={4}
+            pb={{ base: 'calc(16px + env(safe-area-inset-bottom, 0px))', lg: 4 }}
             borderTop="1px solid"
             borderColor={tokens.borderStrong}
             justify="space-between"

@@ -6,7 +6,7 @@ export function Card({ children, hover = false, strong = false, ...props }) {
     <Box
       className={strong ? 'glass-panel-strong' : 'glass-panel'}
       borderRadius={tokens.radius.xl}
-      p={5}
+      p={{ base: 4, md: 5 }}
       transition="border-color 0.2s ease"
       _hover={hover ? { borderColor: tokens.borderStrong } : undefined}
       {...props}

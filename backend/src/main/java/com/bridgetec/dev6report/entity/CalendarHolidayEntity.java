@@ -31,8 +31,8 @@ public class CalendarHolidayEntity {
     @Column(name = "weekday_nm", length = 100)
     private String weekdayNm;
 
-    @Column(name = "holi_yn", columnDefinition = "TINYINT")
-    private Byte holiYn;
+    @Column(name = "holi_yn")
+    private Integer holiYn;
 
     @Column(name = "holi_nm", length = 100)
     private String holiNm;
@@ -52,8 +52,8 @@ public class CalendarHolidayEntity {
     @Column(name = "ms_month", length = 6)
     private String msMonth;
 
-    @Column(name = "public_holi_yn", columnDefinition = "TINYINT")
-    private Byte publicHoliYn;
+    @Column(name = "public_holi_yn")
+    private Integer publicHoliYn;
 
     @Getter
     @Setter

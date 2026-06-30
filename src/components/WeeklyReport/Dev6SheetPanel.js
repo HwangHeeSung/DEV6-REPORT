@@ -29,9 +29,14 @@ export default function Dev6SheetPanel({ year }) {
   return (
     <Box w="100%" maxW="100%">
       <Flex gap={3} mb={4} flexWrap="wrap" align="flex-end">
-        <Box>
+        <Box flex={{ base: '1 1 120px', sm: '0 0 auto' }}>
           <Text className="app-label">주차</Text>
-          <AppSelect value={effectiveWeek ?? ''} onChange={(e) => setWeek(Number(e.target.value))} minW="120px">
+          <AppSelect
+            value={effectiveWeek ?? ''}
+            onChange={(e) => setWeek(Number(e.target.value))}
+            minW="120px"
+            w={{ base: '100%', sm: 'auto' }}
+          >
             {Array.from({ length: period?.week || 1 }, (_, i) => i + 1).map((w) => (
               <option key={w} value={w}>{w}주차</option>
             ))}
@@ -40,8 +45,8 @@ export default function Dev6SheetPanel({ year }) {
         {period && effectiveWeek === period.week && (
           <Badge colorPalette="purple" borderRadius="full" mb={1}>현재 주차</Badge>
         )}
-        <Box ml={{ md: 'auto' }} mb={1}>
-          <SegmentedControl options={SHEET_TABS} value={sheetTab} onChange={setSheetTab} />
+        <Box w={{ base: '100%', md: 'auto' }} ml={{ base: 0, md: 'auto' }} mb={1}>
+          <SegmentedControl options={SHEET_TABS} value={sheetTab} onChange={setSheetTab} fullWidth />
         </Box>
       </Flex>
 

@@ -183,18 +183,28 @@ export default function MonthlyReportPanel({ year }) {
       />
 
       <Flex gap={4} mb={5} flexWrap="wrap" align="flex-end">
-        <Box>
+        <Box flex={{ base: '1 1 100%', sm: '0 0 auto' }}>
           <Text className="app-label">내 이름</Text>
-          <AppSelect value={memberId} onChange={(e) => setMemberId(e.target.value)} minW="180px">
+          <AppSelect
+            value={memberId}
+            onChange={(e) => setMemberId(e.target.value)}
+            minW="180px"
+            w={{ base: '100%', sm: 'auto' }}
+          >
             <option value="">선택하세요</option>
             {members.map((m) => (
               <option key={m.id} value={m.id}>{m.name} ({m.team})</option>
             ))}
           </AppSelect>
         </Box>
-        <Box>
+        <Box flex={{ base: '1 1 100%', sm: '0 0 auto' }}>
           <Text className="app-label">월</Text>
-          <AppSelect value={effectiveMonth ?? ''} onChange={(e) => setMonth(Number(e.target.value))} minW="100px">
+          <AppSelect
+            value={effectiveMonth ?? ''}
+            onChange={(e) => setMonth(Number(e.target.value))}
+            minW="100px"
+            w={{ base: '100%', sm: 'auto' }}
+          >
             {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
               <option key={m} value={m}>{m}월</option>
             ))}
@@ -225,8 +235,8 @@ export default function MonthlyReportPanel({ year }) {
             {error && <Text color="red.300" fontSize="sm" mb={3}>{error}</Text>}
 
             {!isLoading && solutionTabs.length > 0 && (
-              <Box mb={1}>
-                <SegmentedControl options={tabOptions} value={activeTab} onChange={setActiveTab} />
+              <Box mb={1} overflowX="auto" className="app-scroll-x">
+                <SegmentedControl options={tabOptions} value={activeTab} onChange={setActiveTab} fullWidth />
               </Box>
             )}
           </Box>
