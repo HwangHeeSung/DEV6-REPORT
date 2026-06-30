@@ -12,7 +12,6 @@ const PART_META = {
 
 /** 성명 | 개발6팀 | JIRA | 상태 */
 const ROSTER_GRID_PROPS = {
-  display: 'grid',
   gridTemplateColumns: 'minmax(100px, 1.4fr) 108px 108px minmax(120px, 1fr)',
   alignItems: 'center',
   columnGap: 4,
@@ -52,8 +51,8 @@ function StatusBadge({ done, doneLabel, pendingLabel }) {
 function RosterTableHeader() {
   return (
     <Box
-      display={{ base: 'none', md: 'grid' }}
       {...ROSTER_GRID_PROPS}
+      display={{ base: 'none', md: 'grid' }}
       fontSize="sm"
       fontWeight="700"
       color={tokens.textMuted}
@@ -79,8 +78,8 @@ function RosterRow({ row }) {
       _last={{ borderBottom: 'none' }}
     >
       <Box
-        display={{ base: 'none', md: 'grid' }}
         {...ROSTER_GRID_PROPS}
+        display={{ base: 'none', md: 'grid' }}
       >
         <Text fontSize="md" fontWeight="700" color={tokens.text} lineHeight="1.4">
           {row.memberName}
