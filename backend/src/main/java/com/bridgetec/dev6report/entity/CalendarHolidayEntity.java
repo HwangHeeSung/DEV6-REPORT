@@ -32,7 +32,7 @@ public class CalendarHolidayEntity {
     private String weekdayNm;
 
     @Column(name = "holi_yn")
-    private Integer holiYn;
+    private Short holiYn;
 
     @Column(name = "holi_nm", length = 100)
     private String holiNm;
@@ -53,7 +53,7 @@ public class CalendarHolidayEntity {
     private String msMonth;
 
     @Column(name = "public_holi_yn")
-    private Integer publicHoliYn;
+    private Short publicHoliYn;
 
     @Getter
     @Setter
