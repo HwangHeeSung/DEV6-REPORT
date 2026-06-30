@@ -23,5 +23,6 @@ FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 COPY --from=backend /app/backend/target/dev6-report-1.0.0.jar app.jar
 ENV SPRING_PROFILES_ACTIVE=railway
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
