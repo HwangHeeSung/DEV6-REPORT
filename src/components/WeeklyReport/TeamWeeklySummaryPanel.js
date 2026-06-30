@@ -12,6 +12,7 @@ import { AppSelect, SegmentedControl } from '../ui/FilterBar';
 import EmptyState from '../ui/EmptyState';
 import { tokens } from '../../theme/tokens';
 import { FiUsers } from 'react-icons/fi';
+import { formatParticipantNames, isProjectWorkType } from './ProjectParticipantPicker';
 
 export default function TeamWeeklySummaryPanel({ year }) {
   const { data: period } = useCurrentPeriod();
@@ -48,6 +49,8 @@ export default function TeamWeeklySummaryPanel({ year }) {
         accomplishments: entry.accomplishments,
         nextPlan: entry.nextPlan,
         status: report.status,
+        participantMemberNames: entry.participantMemberNames,
+        workType: entry.workType,
       });
     });
   });
@@ -120,6 +123,11 @@ export default function TeamWeeklySummaryPanel({ year }) {
                     {e.projectCode && <Text fontSize="sm" fontFamily="mono" color={tokens.cyan}>{e.projectCode}</Text>}
                     <Text fontWeight="600" fontSize="sm" color={tokens.text}>{e.projectName}</Text>
                   </Flex>
+                  {isProjectWorkType(e.workType) && formatParticipantNames(e.participantMemberNames) && (
+                    <Text fontSize="xs" color={tokens.textMuted} mb={2}>
+                      함께 진행: {formatParticipantNames(e.participantMemberNames)}
+                    </Text>
+                  )}
                   <Text fontSize="sm" color={tokens.text} whiteSpace="pre-wrap" lineHeight="1.7">
                     <Text as="span" fontWeight="600" color={tokens.textMuted}>금주: </Text>{e.accomplishments || '-'}
                   </Text>
@@ -160,7 +168,14 @@ export default function TeamWeeklySummaryPanel({ year }) {
                 {group.items.map((item, i) => (
                   <Box key={i} p={4} borderRadius={tokens.radius.lg} className="glass-panel">
                     <Flex justify="space-between" mb={2}>
-                      <Text fontWeight="600" fontSize="sm" color={tokens.text}>{item.memberName}</Text>
+                      <Box>
+                        <Text fontWeight="600" fontSize="sm" color={tokens.text}>{item.memberName}</Text>
+                        {isProjectWorkType(item.workType) && formatParticipantNames(item.participantMemberNames) && (
+                          <Text fontSize="xs" color={tokens.textMuted} mt={0.5}>
+                            + {formatParticipantNames(item.participantMemberNames)}
+                          </Text>
+                        )}
+                      </Box>
                       <Badge size="sm" colorPalette={item.status === 'SUBMITTED' ? 'green' : 'yellow'} borderRadius="full">
                         {item.status === 'SUBMITTED' ? '제출' : '임시'}
                       </Badge>

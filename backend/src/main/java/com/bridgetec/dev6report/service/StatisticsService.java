@@ -12,6 +12,7 @@ import com.bridgetec.dev6report.repo.WeeklyReportEntryRepository;
 import com.bridgetec.dev6report.repo.WeeklyReportJiraEntryRepository;
 import com.bridgetec.dev6report.repo.WeeklyReportRepository;
 import com.bridgetec.dev6report.util.MemberSortHelper;
+import com.bridgetec.dev6report.util.ParticipantMemberIdsHelper;
 import com.bridgetec.dev6report.util.PeriodHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -112,7 +113,7 @@ public class StatisticsService {
             for (WeeklyReportEntryEntity entry : entries) {
                 String key = statKey(entry);
                 accumulators.computeIfAbsent(key, k -> ProjectCodeAccumulator.from(entry))
-                        .add(memberName);
+                        .add(memberName, entry.getParticipantMemberIds(), members);
             }
         }
 
@@ -162,10 +163,13 @@ public class StatisticsService {
             );
         }
 
-        void add(String memberName) {
+        void add(String memberName, String participantMemberIds, Map<Long, MemberEntity> members) {
             entryCount++;
             if (memberName != null && !memberName.isBlank()) {
                 memberNames.add(memberName.trim());
+            }
+            for (String name : ParticipantMemberIdsHelper.resolveNames(participantMemberIds, members)) {
+                memberNames.add(name);
             }
         }
 

@@ -18,6 +18,7 @@ import { accomplishmentsOrDefault, accomplishmentsTemplateForProductLine } from 
 import { formatSolutionsLabel } from '../../utils/memberSolutions';
 import { formatWeeklyReportMail } from '../../utils/weeklyReportMail';
 import { FiEdit3, FiX, FiCopy } from 'react-icons/fi';
+import ProjectParticipantPicker, { formatParticipantNames, isProjectWorkType } from './ProjectParticipantPicker';
 
 const STORAGE_KEY = 'dev6_report_member_id';
 
@@ -39,6 +40,7 @@ function emptyEntry(project, prevText = '') {
     prevAccomplishments: prevText,
     accomplishments: accomplishmentsTemplateForProductLine(productLine),
     nextPlan: '',
+    participantMemberIds: [],
   };
 }
 
@@ -52,6 +54,7 @@ function entryFromReport(e) {
     prevAccomplishments: e.prevAccomplishments || '',
     accomplishments: accomplishmentsOrDefault(e.accomplishments, e.productLine),
     nextPlan: e.nextPlan || '',
+    participantMemberIds: e.participantMemberIds || [],
   };
 }
 
@@ -338,6 +341,10 @@ export default function MyWeeklyReportPanel({ year }) {
     setEntries((prev) => prev.map((e, i) => (i === idx ? { ...e, [field]: value } : e)));
   };
 
+  const updateParticipants = (idx, participantMemberIds) => {
+    setEntries((prev) => prev.map((e, i) => (i === idx ? { ...e, participantMemberIds } : e)));
+  };
+
   const statusLabel = () => {
     if (!myReport) return { text: '미작성', color: 'orange' };
     if (myReport.status === 'SUBMITTED') return { text: '제출 완료', color: 'green' };
@@ -435,6 +442,11 @@ export default function MyWeeklyReportPanel({ year }) {
                           <Badge colorPalette="purple" borderRadius="full">{e.productLine}</Badge>
                           <Text fontWeight="600" fontSize="sm" color={tokens.text}>{e.projectName}</Text>
                         </Flex>
+                        {isProjectWorkType(e.workType) && formatParticipantNames(e.participantMemberNames) && (
+                          <Text fontSize="xs" color={tokens.textMuted} mb={2}>
+                            함께 진행: {formatParticipantNames(e.participantMemberNames)}
+                          </Text>
+                        )}
                         <Text fontSize="sm" color={tokens.text} whiteSpace="pre-wrap" lineHeight="1.7">
                           {e.accomplishments || '-'}
                         </Text>
@@ -711,6 +723,14 @@ export default function MyWeeklyReportPanel({ year }) {
                     </Grid>
                     <Text className="app-label">금주 실적 *</Text>
                     <Textarea className="app-input" value={entry.accomplishments} onChange={(e) => updateEntry(idx, 'accomplishments', e.target.value)} rows={6} fontFamily="inherit" fontSize="sm" lineHeight="1.6" />
+                    {isProjectWorkType(entry.workType) && (
+                      <ProjectParticipantPicker
+                        members={members}
+                        excludeMemberId={memberId}
+                        selectedIds={entry.participantMemberIds || []}
+                        onChange={(ids) => updateParticipants(idx, ids)}
+                      />
+                    )}
                   </Box>
                 ))
               )}

@@ -32,6 +32,7 @@ Spring Boot + React 단일 JAR를 Railway에 올리고, PostgreSQL을 붙이는 
 | 변수 | 값 |
 |------|-----|
 | `SPRING_PROFILES_ACTIVE` | `railway` |
+| `DB_VENDOR` | (자동 `postgresql` — 보통 생략 가능) |
 | `JIRA_BASE_URL` | `http://qa.bridgetec.co.kr/jira` |
 | `JIRA_USERNAME` | (운영 계정) |
 | `JIRA_PASSWORD` | (운영 비밀번호) |
@@ -49,7 +50,7 @@ GitHub에 push 하면 자동 빌드·배포됩니다.
 2. `mvn package -Pbundle-frontend` (JAR에 React 포함)
 3. JAR 실행 (`SPRING_PROFILES_ACTIVE=railway`)
 
-최초 기동 시 Flyway가 `db/migration/postgresql` 스키마를 적용하고 팀원 시드를 넣습니다.
+최초 기동 시 Flyway가 `db/migration/postgresql` 스키마를 적용합니다 (`SPRING_PROFILES_ACTIVE=railway` → `DB_VENDOR=postgresql`).
 
 ## 5. 배포 확인
 

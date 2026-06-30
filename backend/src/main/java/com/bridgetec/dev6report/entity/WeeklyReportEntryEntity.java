@@ -41,6 +41,10 @@ public class WeeklyReportEntryEntity {
     @Column(name = "next_plan", columnDefinition = "TEXT")
     private String nextPlan;
 
+    /** 프로젝트 유형 — 함께 진행하는 멤버 ID (쉼표구분) */
+    @Column(name = "participant_member_ids", length = 200)
+    private String participantMemberIds;
+
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder = 0;
 }

@@ -8,6 +8,7 @@ import com.bridgetec.dev6report.repo.WeeklyReportEntryRepository;
 import com.bridgetec.dev6report.repo.WeeklyReportJiraEntryRepository;
 import com.bridgetec.dev6report.repo.WeeklyReportRepository;
 import com.bridgetec.dev6report.util.MemberSortHelper;
+import com.bridgetec.dev6report.util.ParticipantMemberIdsHelper;
 import com.bridgetec.dev6report.util.PeriodHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -167,6 +168,11 @@ public class WeeklyReportService {
                     if (entry.getWorkType() == null) entry.setWorkType(p.getWorkType());
                 });
             }
+            if ("프로젝트".equals(entry.getWorkType())) {
+                entry.setParticipantMemberIds(ParticipantMemberIdsHelper.serialize(req.participantMemberIds()));
+            } else {
+                entry.setParticipantMemberIds(null);
+            }
             weeklyReportEntryRepository.save(entry);
         }
     }
@@ -201,12 +207,11 @@ public class WeeklyReportService {
     }
 
     private WeeklyReportDto toDto(WeeklyReportEntity entity, MemberEntity member) {
+        Map<Long, MemberEntity> memberById = memberRepository.findAll().stream()
+                .collect(Collectors.toMap(MemberEntity::getId, Function.identity(), (a, b) -> a));
         List<WeeklyReportEntryDto> entries = weeklyReportEntryRepository
                 .findByWeeklyReportIdOrderBySortOrderAscIdAsc(entity.getId()).stream()
-                .map(e -> new WeeklyReportEntryDto(
-                        e.getId(), e.getProjectId(), e.getProjectName(), e.getProjectCode(), e.getWorkType(),
-                        e.getProductLine(), e.getPrevAccomplishments(), e.getAccomplishments(), e.getNextPlan(),
-                        e.getSortOrder()))
+                .map(e -> toEntryDto(e, memberById))
                 .toList();
         List<WeeklyReportJiraEntryDto> jiraEntries = weeklyReportJiraEntryRepository
                 .findByWeeklyReportIdOrderByIssueKeyAsc(entity.getId()).stream()
@@ -234,6 +239,15 @@ public class WeeklyReportService {
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );
+    }
+
+    private WeeklyReportEntryDto toEntryDto(WeeklyReportEntryEntity e, Map<Long, MemberEntity> memberById) {
+        List<Long> participantIds = ParticipantMemberIdsHelper.parse(e.getParticipantMemberIds());
+        List<String> participantNames = ParticipantMemberIdsHelper.resolveNames(e.getParticipantMemberIds(), memberById);
+        return new WeeklyReportEntryDto(
+                e.getId(), e.getProjectId(), e.getProjectName(), e.getProjectCode(), e.getWorkType(),
+                e.getProductLine(), e.getPrevAccomplishments(), e.getAccomplishments(), e.getNextPlan(),
+                e.getSortOrder(), participantIds, participantNames);
     }
 
     private boolean filterByProductLine(WeeklyReportDto dto, String productLine) {

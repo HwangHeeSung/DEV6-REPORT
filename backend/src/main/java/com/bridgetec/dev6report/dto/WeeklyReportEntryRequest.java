@@ -1,5 +1,7 @@
 package com.bridgetec.dev6report.dto;
 
+import java.util.List;
+
 public record WeeklyReportEntryRequest(
         Long projectId,
         String projectName,
@@ -9,6 +11,7 @@ public record WeeklyReportEntryRequest(
         String prevAccomplishments,
         String accomplishments,
         String nextPlan,
-        Integer sortOrder
+        Integer sortOrder,
+        List<Long> participantMemberIds
 ) {
 }

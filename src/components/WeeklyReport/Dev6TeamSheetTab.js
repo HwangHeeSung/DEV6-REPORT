@@ -3,10 +3,11 @@ import { Box, Text, Flex, Spinner, Badge } from '@chakra-ui/react';
 import { AppSelect } from '../ui/FilterBar';
 import EmptyState from '../ui/EmptyState';
 import { tokens } from '../../theme/tokens';
+import { formatParticipantNames, isProjectWorkType } from './ProjectParticipantPicker';
 
 const WORK_TYPE_ORDER = ['프로젝트', '유지보수', '제품개발'];
 const PRODUCT_LINES = ['SWAT', 'IPRON CTI', 'ARGO', 'RSM'];
-const SHEET_MIN_WIDTH = '1840px';
+const SHEET_MIN_WIDTH = '1960px';
 
 const COLUMNS = [
   { key: 'workType', label: '업무 구분', width: '96px' },
@@ -15,6 +16,7 @@ const COLUMNS = [
   { key: 'team', label: '팀', width: '80px' },
   { key: 'productLine', label: '솔루션', width: '108px' },
   { key: 'memberName', label: '작성자', width: '100px' },
+  { key: 'participants', label: '함께 진행', width: 'minmax(100px, 1fr)' },
   { key: 'prevAccomplishments', label: '전주 실적', width: 'minmax(300px, 1.5fr)' },
   { key: 'accomplishments', label: '금주 실적', width: 'minmax(360px, 1.8fr)' },
   { key: 'nextPlan', label: '차주 계획', width: 'minmax(280px, 1.4fr)' },
@@ -44,6 +46,7 @@ function flattenSheetRows(reports, memberId, productLine) {
         memberName: report.memberName,
         status: report.status,
         workType: entry.workType || '프로젝트',
+        participantMemberNames: entry.participantMemberNames || [],
         projectCode: entry.projectCode || '',
         projectName: entry.projectName || '',
         team: '개발6팀',
@@ -108,6 +111,9 @@ function SheetRow({ row }) {
           <Badge size="sm" colorPalette="yellow" borderRadius="full" mt={1}>임시</Badge>
         )}
       </Box>
+      <SheetCell>
+        {isProjectWorkType(row.workType) ? (formatParticipantNames(row.participantMemberNames) || '-') : '-'}
+      </SheetCell>
       <SheetCell>{row.prevAccomplishments}</SheetCell>
       <SheetCell>{row.accomplishments}</SheetCell>
       <SheetCell>{row.nextPlan}</SheetCell>

@@ -12,6 +12,7 @@ import {
 import { useMembers, useCurrentPeriod } from '../../hooks/useReports';
 import { useMemberProjects } from '../../hooks/useProjects';
 import JiraIssuesPanel from '../Jira/JiraIssuesPanel';
+import ProjectParticipantPicker, { isProjectWorkType } from './ProjectParticipantPicker';
 import PageBanner from '../ui/PageBanner';
 import { Card } from '../ui/Card';
 import EmptyState from '../ui/EmptyState';
@@ -58,6 +59,7 @@ function emptyEntry(project) {
     prevAccomplishments: '',
     accomplishments: accomplishmentsTemplateForProductLine(productLine),
     nextPlan: '',
+    participantMemberIds: [],
   };
 }
 
@@ -125,6 +127,7 @@ export default function WeeklyReportPanel({ year }) {
       prevAccomplishments: e.prevAccomplishments,
       accomplishments: e.accomplishments,
       nextPlan: e.nextPlan,
+      participantMemberIds: e.participantMemberIds || [],
       sortOrder: i,
     })),
     jiraEntries,
@@ -183,6 +186,7 @@ export default function WeeklyReportPanel({ year }) {
             prevAccomplishments: e.prevAccomplishments || '',
             accomplishments: accomplishmentsOrDefault(e.accomplishments, e.productLine),
             nextPlan: e.nextPlan || '',
+            participantMemberIds: e.participantMemberIds || [],
           }))
         : [emptyEntry()]
     );
@@ -195,6 +199,10 @@ export default function WeeklyReportPanel({ year }) {
 
   const updateEntry = (idx, field, value) => {
     setEntries((prev) => prev.map((e, i) => (i === idx ? { ...e, [field]: value } : e)));
+  };
+
+  const updateParticipants = (idx, participantMemberIds) => {
+    setEntries((prev) => prev.map((e, i) => (i === idx ? { ...e, participantMemberIds } : e)));
   };
 
   const addEntry = () => setEntries((prev) => [...prev, emptyEntry()]);
@@ -386,6 +394,14 @@ export default function WeeklyReportPanel({ year }) {
                   <Textarea className="app-input" value={entry.accomplishments} onChange={(e) => updateEntry(idx, 'accomplishments', e.target.value)} rows={5} mb={2} fontFamily="inherit" fontSize="sm" lineHeight="1.6" />
                   <Text fontSize="sm" color={tokens.textMuted} mb={1}>차주 계획 (선택)</Text>
                   <Textarea className="app-input" value={entry.nextPlan} onChange={(e) => updateEntry(idx, 'nextPlan', e.target.value)} rows={2} />
+                  {isProjectWorkType(entry.workType) && (
+                    <ProjectParticipantPicker
+                      members={members}
+                      excludeMemberId={formMemberId}
+                      selectedIds={entry.participantMemberIds || []}
+                      onChange={(ids) => updateParticipants(idx, ids)}
+                    />
+                  )}
                 </Box>
               ))}
               <Button size="sm" variant="outline" borderRadius="full" onClick={addEntry}>+ 프로젝트 행 추가</Button>
